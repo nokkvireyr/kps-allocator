@@ -4,19 +4,24 @@ using KPSAllocator.Modules.Player;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Microsoft.Extensions.Localization;
+using CounterStrikeSharp.API.Modules.Utils;
+using KPSAllocator.Modules.Config;
+using Microsoft.EntityFrameworkCore;
+
 namespace KPSAllocator;
 
 public static class Utils
 {
-  public static void AddPlayerToList(ulong steamID, IStringLocalizer Localizer)
+  public static void AddPlayerToList(ulong? steamID, IStringLocalizer Localizer)
   {
-    if (KPSAllocator.connectedPlayers.Any(x => x.GetSteamID() == steamID))
+    if (steamID is null || KPSAllocator.connectedPlayers.Any(x => x.GetSteamID() == steamID))
       return;
-    var player = Query.GetPlayer(steamID);
+    var newSteamId = (ulong)steamID;
+    var player = Query.GetPlayer(newSteamId);
     var allocatorPlayer = player?.ToAllocatorPlayer();
     if (allocatorPlayer == null)
     {
-      var controller = Utilities.GetPlayerFromSteamId(steamID);
+      var controller = Utilities.GetPlayerFromSteamId(newSteamId);
       if (controller != null)
       {
 
@@ -29,8 +34,11 @@ public static class Utils
     }
     if (allocatorPlayer != null)
     {
-      KPSAllocator.connectedPlayers.Add(allocatorPlayer);
-      allocatorPlayer.PrintToChat(Localizer["welcomeMessage"]);
+      if (allocatorPlayer.Controller.IsValid)
+      {
+        KPSAllocator.connectedPlayers.Add(allocatorPlayer);
+        allocatorPlayer.PrintToChat(Localizer["welcomeMessage"]);
+      }
     }
 
   }
@@ -43,11 +51,17 @@ public static class Utils
   }
   public static void GivePlayerDefuseKit(CCSPlayerController player)
   {
-    if (player.PlayerPawn.Value?.ItemServices?.Handle is null || !IsValidPlayer(player))
+    if (
+        player.Team == CsTeam.CounterTerrorist
+        && player.PlayerPawn.IsValid
+        && player.PlayerPawn.Value != null
+        && player.PlayerPawn.Value.IsValid
+        && player.PlayerPawn.Value.ItemServices != null
+    )
     {
-      return;
+      var itemServices = new CCSPlayer_ItemServices(player.PlayerPawn.Value.ItemServices.Handle);
+      itemServices.HasDefuser = true;
     }
-    new CCSPlayer_ItemServices(player.PlayerPawn.Value.ItemServices.Handle).HasDefuser = true;
   }
 
   public static CCSGameRules GetGameRules()
@@ -98,5 +112,16 @@ public static class Utils
   public static void Log(string message)
   {
     Console.WriteLine($"{Constant.LOG_PREFIX} {message}");
+  }
+
+  public static void MySQLSetup(DatabaseConfigData config, DbContextOptionsBuilder optionsBuilder)
+  {
+    var connectionString = @$"Server={config.Host}; Database={config.Database}; Port={config.Port}; User ID={config.User}; Password={config.Pass};";
+    optionsBuilder.UseMySql(connectionString, new MySqlServerVersion(ServerVersion.AutoDetect(connectionString)));
+  }
+
+  public static void SqlLiteSetup(DbContextOptionsBuilder optionsBuilder)
+  {
+    optionsBuilder.UseSqlite($"Data Source=kps_allocator.db");
   }
 }

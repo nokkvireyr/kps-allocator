@@ -3,25 +3,25 @@ using System.Text.Json.Serialization;
 
 namespace KPSAllocator.Modules.Config;
 
-public class BaseConfigData
+
+public interface IBaseConfigData
 {
-  public string? Version { set; get; } = "1.0.0";
+  string Version { get; set; }
 }
 
-public class BaseConfig<TConfigData> where TConfigData : BaseConfigData
+public class BaseConfig<TConfigData> where TConfigData : IBaseConfigData
 {
   public TConfigData? ConfigData { set; get; }
-  public TConfigData? DefaultConfigData;
+  public TConfigData DefaultConfigData { set; get; }
   private readonly string _configPath;
   public BaseConfig(string dir, TConfigData defaultConfigData, string configName = "config.json")
   {
+    DefaultConfigData = defaultConfigData;
     if (!Directory.Exists(Path.Combine(dir, "configs")))
     {
       Directory.CreateDirectory(Path.Combine(dir, "configs"));
     }
     _configPath = Path.Combine(Path.Combine(dir, "configs"), configName);
-    DefaultConfigData = defaultConfigData;
-    ConfigData = null;
   }
 
   public void Load()
@@ -40,10 +40,15 @@ public class BaseConfig<TConfigData> where TConfigData : BaseConfigData
       };
 
       ConfigData = JsonSerializer.Deserialize<TConfigData>(json, options);
-
       if (ConfigData == null)
       {
         throw new Exception("Config data is null");
+      }
+
+      if (ConfigData.Version != DefaultConfigData!.Version)
+      {
+        UpdateConfig();
+        throw new Exception("Outdated Version. Trying to update");
       }
     }
     catch (FileNotFoundException)
@@ -78,5 +83,13 @@ public class BaseConfig<TConfigData> where TConfigData : BaseConfigData
     {
       Utils.Log($"Error while saving config: {ex.Message}");
     }
+  }
+
+  public void UpdateConfig()
+  {
+    if (ConfigData is null || DefaultConfigData is null)
+      return;
+    ConfigData.Version = DefaultConfigData.Version;
+    Save();
   }
 }

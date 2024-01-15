@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -6,6 +7,15 @@ using KPSAllocator.Modules.Player;
 using Microsoft.Extensions.Localization;
 
 namespace KPSAllocator.Modules.Menu;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum MenuType
+{
+  PRIMAY = 0,
+  SECONDARY = 1,
+  SMG = 2,
+  SNIPER = 3
+}
 
 public class AllocatorMenu
 {
@@ -32,58 +42,51 @@ public class AllocatorMenu
     AllocatorPlayer.GetFromController(player)?.PrintToChat(Localizer["menu.nextRound"]);
   }
 
-  public ChatMenu? PrimaryWeapon(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist)
+  public ChatMenu? PrimaryWeapon(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist, int menuIndex = 0)
   {
 
-    if (InMenu.Contains(player))
-    {
-      player.PrintToChat(Localizer["menu.alreadyOpen"]);
-      return null;
-    }
-    InMenu.Add(player);
     var menu = BaseMenu(Localizer["menu.primary"], team);
     var menuItems = team == CsTeam.Terrorist ? TWeapon.Primary.ToList() : CTWeapon.Primary.ToList();
 
     // Next Menu
-    var nextMenu = SecondaryWeapon(player, team);
 
-    menuItems.ForEach(x => menu.AddMenuOption(Localizer[$"weapon.{x}"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, x, team, RoundType.FullBuy, nextMenu)));
+    menuItems.ForEach(x => menu.AddMenuOption(Localizer[$"weapon.{x}"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, x, team, RoundType.FullBuy, menuIndex)));
     menu.AddMenuOption(Localizer["menu.exit"], CloseMenu);
 
     return menu;
   }
 
-  public ChatMenu SecondaryWeapon(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist)
+  public ChatMenu SecondaryWeapon(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist, int menuIndex = 0)
   {
     var menu = BaseMenu(Localizer["menu.secondary"], team);
     var menuItems = team == CsTeam.Terrorist ? TWeapon.Secondary.ToList() : CTWeapon.Secondary.ToList();
 
     // Next Menu
     var nextMenu = SMGWeapon(player, team);
-    menuItems.ForEach(x => menu.AddMenuOption(Localizer[$"weapon.{x}"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, x, team, RoundType.Pistol, nextMenu)));
+    menuItems.ForEach(x => menu.AddMenuOption(Localizer[$"weapon.{x}"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, x, team, RoundType.Pistol, menuIndex)));
     menu.AddMenuOption(Localizer["menu.exit"], CloseMenu);
     return menu;
   }
 
-  public ChatMenu SMGWeapon(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist)
+  public ChatMenu SMGWeapon(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist, int menuIndex = 0)
   {
     var menu = BaseMenu(Localizer["menu.smg"], team);
     var menuItems = team == CsTeam.Terrorist ? TWeapon.SMG.ToList() : CTWeapon.SMG.ToList();
     // Next Menu
     var nextMenu = AllowSniper(player, team);
-    menuItems.ForEach(x => menu.AddMenuOption(Localizer[$"weapon.{x}"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, x, team, RoundType.SmallBuy, nextMenu)));
+    menuItems.ForEach(x => menu.AddMenuOption(Localizer[$"weapon.{x}"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, x, team, RoundType.SmallBuy, menuIndex)));
     menu.AddMenuOption(Localizer["menu.exit"], CloseMenu);
     return menu;
   }
 
-  public ChatMenu AllowSniper(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist)
+  public ChatMenu AllowSniper(AllocatorPlayer player, CsTeam team = CsTeam.Terrorist, int menuIndex = 0)
   {
     var menu = BaseMenu(Localizer["menu.allowSniper"], team);
-    menu.AddMenuOption(Localizer[$"menu.yes"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, null, team, RoundType.FullBuy, null, true, true));
-    menu.AddMenuOption(Localizer[$"menu.no"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, null, team, RoundType.FullBuy, null, true));
+    menu.AddMenuOption(Localizer[$"menu.yes"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, null, team, RoundType.FullBuy, menuIndex, true, true));
+    menu.AddMenuOption(Localizer[$"menu.no"], (CCSPlayerController _, ChatMenuOption option) => MenuHandler(player, null, team, RoundType.FullBuy, menuIndex, true));
     return menu;
   }
-  public void MenuHandler(AllocatorPlayer player, CsItem? weapon, CsTeam team, RoundType type, ChatMenu? nextMenu, bool isSettingSniper = false, bool allowSniper = false)
+  public void MenuHandler(AllocatorPlayer player, CsItem? weapon, CsTeam team, RoundType type, int nextMenuIndex, bool isSettingSniper = false, bool allowSniper = false)
   {
     if (isSettingSniper)
     {
@@ -108,6 +111,7 @@ public class AllocatorMenu
           break;
       }
     }
+    var nextMenu = GetNextMenu(nextMenuIndex, player, team);
     if (nextMenu != null)
       ChatMenus.OpenMenu(player.Controller, nextMenu);
     else
@@ -145,6 +149,27 @@ public class AllocatorMenu
         player.SMGCT = wepaon;
         break;
     }
+  }
+
+  public ChatMenu? GetNextMenu(int menuIndex, AllocatorPlayer player, CsTeam team)
+  {
+    if (KPSAllocator.GameConfig?.ConfigData is null)
+      return null;
+    if (menuIndex >= KPSAllocator.GameConfig.ConfigData.Menus.Count)
+      return null;
+    var menuType = KPSAllocator.GameConfig.ConfigData.Menus.ElementAt(menuIndex);
+    return GetMenuByType(menuType, player, team, menuIndex + 1);
+  }
+
+  public ChatMenu? GetMenuByType(MenuType menuType, AllocatorPlayer player, CsTeam team, int menuIndex = 0)
+  {
+    return menuType switch
+    {
+      MenuType.SECONDARY => SecondaryWeapon(player, team, menuIndex),
+      MenuType.SMG => SMGWeapon(player, team, menuIndex),
+      MenuType.SNIPER => AllowSniper(player, team, menuIndex),
+      _ => PrimaryWeapon(player, team, menuIndex)
+    };
   }
 
 }

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using KPSAllocator.Modules.Menu;
 
 namespace KPSAllocator.Modules.Config;
 
@@ -20,10 +21,6 @@ public class RoundUtilValueProperty
   public required RoundType RoundType { set; get; }
 }
 
-internal class StringEnumConverter<T>
-{
-}
-
 public class UtilValueProperty
 {
   [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -32,11 +29,18 @@ public class UtilValueProperty
   public required int Amount { set; get; }
 }
 
-public class GameConfigData : BaseConfigData
+public class GameConfigData : IBaseConfigData
 {
   // Settings this to true will make the plugin randomly set the round type (Still based on the percentage below).
   // Default value is false (So it will always start with a pistol round then a half buy then a full buy)
+  public string Version { set; get; } = "1.0.1";
   public bool RandomRound { set; get; } = false;
+  public List<MenuType> Menus { set; get; } = new List<MenuType>() {
+    MenuType.PRIMAY,
+    MenuType.SECONDARY,
+    MenuType.SMG,
+    MenuType.SNIPER
+  };
   // Full buy, half buy, eco
   // You can Either use Percentage or fixed number
   // Default value is 83% full buy, 7% half buy, 10% eco (So In A 30 Round game, 25 full buy, 2 half buy, 3 eco)
