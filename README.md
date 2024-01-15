@@ -32,7 +32,7 @@ The configuration file is located in `/addons/counterstrikesharp/plugins/KPSAllo
 
 The plugins supports both MySQL and SQLite. You can choose which one you want to use by changing the `engine` value in the `database.json` file. Default is SQLite.
 
-```JSON
+```JSONC
 {
   "engine": "sql",        //-> Change this to "mysql" if you want to use MySQL
   "Host": "localhost",    //-> Only need to change this if you are using MySQL
@@ -50,7 +50,7 @@ The plugins supports both MySQL and SQLite. You can choose which one you want to
 
 This file is used to configure the weapon allocator settings. Ex Util settings, Round Types, Random Rounds and so on.
 
-```JSON
+```JSONC
 {
   //If true, the rounds will be roundomly played, not linearly.
   "RandomRound": false, 
