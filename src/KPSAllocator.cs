@@ -11,7 +11,7 @@ public partial class KPSAllocator : BasePlugin
 {
   // This is the entry point for the plugin
   public override string ModuleName => "KPS Allocator";
-  public override string ModuleVersion => "0.1.0";
+  public override string ModuleVersion => "0.1.1";
   public override string ModuleAuthor => "Nokkvi Reyr";
   // Variables
   public static DatabaseConfig? DBConfig { get; set; } = null;

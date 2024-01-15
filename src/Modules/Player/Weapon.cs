@@ -79,7 +79,7 @@ public static class CTWeapon
     public static List<CsItem> ToList()
     {
       var Bluff = new Secondary();
-      return Bluff.GetType().GetRuntimeFields().Select(x => (CsItem)x.GetValue(Bluff)!).Concat(SharedWeapon.Primary.ToList()).ToList();
+      return Bluff.GetType().GetRuntimeFields().Select(x => (CsItem)x.GetValue(Bluff)!).Concat(SharedWeapon.Secondary.ToList()).ToList();
     }
   }
 }
