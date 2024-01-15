@@ -53,6 +53,7 @@ public static class Utils
   {
     if (
         player.Team == CsTeam.CounterTerrorist
+        && IsValidPlayer(player)
         && player.PlayerPawn.IsValid
         && player.PlayerPawn.Value != null
         && player.PlayerPawn.Value.IsValid
