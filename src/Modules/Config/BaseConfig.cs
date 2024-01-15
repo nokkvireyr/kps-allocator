@@ -33,7 +33,13 @@ public class BaseConfig<TConfigData> where TConfigData : BaseConfigData
         throw new FileNotFoundException();
       }
       var json = File.ReadAllText(_configPath);
-      ConfigData = JsonSerializer.Deserialize<TConfigData>(json);
+      var options = new JsonSerializerOptions
+      {
+        AllowTrailingCommas = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+      };
+
+      ConfigData = JsonSerializer.Deserialize<TConfigData>(json, options);
 
       if (ConfigData == null)
       {
