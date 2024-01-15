@@ -9,7 +9,6 @@ namespace KPSAllocator;
 
 public partial class KPSAllocator : BasePlugin
 {
-
   [ConsoleCommand("css_guns", "Opens up the gun menu, Can also open up menu for each team by using !guns <t/ct>")]
   [CommandHelper(minArgs: 0, usage: "[t/ct]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
   public void OnGunsCommand(CCSPlayerController? player, CommandInfo info)
@@ -29,7 +28,7 @@ public partial class KPSAllocator : BasePlugin
     var po = connectedPlayers.Find(x => x.Controller == player);
     if (player is null || po is null || Menus is null)
       return;
-    var team = info.GetArg(1) switch
+    var team = info.GetArg(1).ToLower() switch
     {
       "t" => CsTeam.Terrorist,
       "ct" => CsTeam.CounterTerrorist,
@@ -44,5 +43,4 @@ public partial class KPSAllocator : BasePlugin
     if (primaryMenu != null)
       ChatMenus.OpenMenu(player.Controller, primaryMenu);
   }
-
 }
