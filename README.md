@@ -8,10 +8,11 @@ I made this for our own community server as at that time there was no weapn allo
 
 ## Installation
 
-1. Make sure CS2Retakes is installed (<https://github.com/yonilerner/cs2-retakes-allocator/releases>)
-2. Download the latest KPS Allocator release from <https://github.com/nokkvireyr/kps-allocator/releases>
-3. extract the zip file to your CSSharp plugins folder
-4. Start your server and enjoy!
+1. Make sure CSSharp is installed (<https://github.com/roflmuffin/CounterStrikeSharp/releases>)
+2. Make sure CS2Retakes is installed (<https://github.com/yonilerner/cs2-retakes-allocator/releases>)
+3. Download the latest KPS Allocator release from <https://github.com/nokkvireyr/kps-allocator/releases>
+4. extract the zip file to your CSSharp plugins folder
+5. Start your server and enjoy!
 
 ## Usage
 
