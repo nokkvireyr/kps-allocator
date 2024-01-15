@@ -25,6 +25,7 @@ jobs:
         run: |
           mkdir -p output/KPSAllocator
           mv ./bin/Debug/net7.0/* output/KPSAllocator/
+          rm output/KPSAllocator/CounterStrikeSharp.API.dll
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
