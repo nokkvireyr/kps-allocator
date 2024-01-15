@@ -43,7 +43,7 @@ public static class Utils
   }
   public static void GivePlayerDefuseKit(CCSPlayerController player)
   {
-    if (player.PlayerPawn.Value?.ItemServices?.Handle is null || !IsValidPlayer(player))
+    if (!IsValidPlayer(player) || !player.PlayerPawn.IsValid || player.PlayerPawn.Value?.ItemServices?.Handle is null)
     {
       return;
     }
