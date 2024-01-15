@@ -113,4 +113,4 @@ This file is used to configure the weapon allocator settings. Ex Util settings, 
 
 ### TODO
 - [ ] Add support for configuring Guns selection
-- [ ] Better Guns Menu (Possibly by using CS2 Veto System)
+- [ ] Better Guns Menu (Possibly by using CS2 Vote System)
