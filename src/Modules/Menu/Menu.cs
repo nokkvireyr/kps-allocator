@@ -154,7 +154,15 @@ public class AllocatorMenu
   public ChatMenu? GetNextMenu(int menuIndex, AllocatorPlayer player, CsTeam team)
   {
     if (KPSAllocator.GameConfig?.ConfigData is null)
+    {
+      player.PrintToChat(Localizer["error.generic"]);
       return null;
+    }
+    if (KPSAllocator.GameConfig.ConfigData.Menus.Count <= 0)
+    {
+      player.PrintToChat(Localizer["menu.notAvailable"]);
+      return null;
+    }
     if (menuIndex >= KPSAllocator.GameConfig.ConfigData.Menus.Count)
       return null;
     var menuType = KPSAllocator.GameConfig.ConfigData.Menus.ElementAt(menuIndex);

@@ -1,5 +1,6 @@
 
 
+using System.Net.NetworkInformation;
 using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -16,6 +17,12 @@ public enum RoundType
 public static class Constant
 {
   public static string DATABASE_NAME = "kps_allocator";
-  public static string CHAT_PREFIX = $"[{ChatColors.Purple}KPS{ChatColors.White}] ";
+  public static string CHAT_PREFIX = $"[{ChatColors.Green}Retakes{ChatColors.White}] ";
   public static string LOG_PREFIX = $"[KPS Allocator] ";
+
+  public static void SetChatPrefix(string? prefix)
+  {
+    if (prefix is not null)
+      CHAT_PREFIX = $"[{ChatColors.Green}{prefix}{ChatColors.White}] ";
+  }
 }
