@@ -15,7 +15,7 @@ public partial class KPSAllocator : BasePlugin
 {
   // This is the entry point for the plugin
   public override string ModuleName => "KPS Allocator";
-  public override string ModuleVersion => "0.2.0";
+  public override string ModuleVersion => "0.2.1";
   public override string ModuleAuthor => "Nokkvi Reyr";
   // Variables
   public static DatabaseConfig? DBConfig { get; set; } = null;
@@ -31,9 +31,8 @@ public partial class KPSAllocator : BasePlugin
     DBConfig.Load();
     GameConfig = new GameConfig(ModuleDirectory);
     GameConfig.Load();
-
+    Constant.SetChatPrefix(GameConfig.ConfigData?.ChatPrefix);
     Database = new Database();
-
     if (hotReload)
     {
       Utilities.GetPlayers().ForEach((player) =>

@@ -33,7 +33,8 @@ public class GameConfigData : IBaseConfigData
 {
   // Settings this to true will make the plugin randomly set the round type (Still based on the percentage below).
   // Default value is false (So it will always start with a pistol round then a half buy then a full buy)
-  public string Version { set; get; } = "1.0.1";
+  public string Version { set; get; } = "1.0.2";
+  public string ChatPrefix { set; get; } = "Retakes";
   public bool RandomRound { set; get; } = false;
   public List<MenuType> Menus { set; get; } = new List<MenuType>() {
     MenuType.PRIMAY,
