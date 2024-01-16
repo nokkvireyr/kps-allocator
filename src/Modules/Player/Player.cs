@@ -35,7 +35,7 @@ public partial class AllocatorPlayer
   }
   public CsTeam GetTeam()
   {
-    return (CsTeam)Controller.TeamNum;
+    return Controller.Team;
   }
   public bool IsValid()
   {
